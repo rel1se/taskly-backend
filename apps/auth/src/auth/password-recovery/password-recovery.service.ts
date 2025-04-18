@@ -1,12 +1,17 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
-import { PrismaService } from '@/prisma/prisma.service'
-import { UserService } from '@/user/user.service'
-import { MailService } from '@/libs/mail/mail.service'
-import { TokenType } from '@prisma/__generated__'
-import {v4 as uuidv4} from 'uuid'
-import { ResetPasswordDto } from '@/auth/password-recovery/dto/reset-password.dto'
+import {
+	BadRequestException,
+	Injectable,
+	NotFoundException
+} from '@nestjs/common'
+
+import { TokenType } from '@prisma/db-auth'
+import { v4 as uuidv4 } from 'uuid'
 import { hash } from 'argon2'
-import { NewPasswordDto } from '@/auth/password-recovery/dto/new-password.dto'
+import { PrismaService } from '../../prisma/prisma.service'
+import { UserService } from '../../user/user.service'
+import { MailService } from '../../libs/mail/mail.service'
+import { ResetPasswordDto } from './dto/reset-password.dto'
+import { NewPasswordDto } from './dto/new-password.dto'
 
 @Injectable()
 export class PasswordRecoveryService {
@@ -66,7 +71,7 @@ export class PasswordRecoveryService {
 		if (!existingUser) {
 			throw new NotFoundException(
 				'Пользователь не найден. ' +
-				'Пожалуйста, проверьте введенный адрес электронной почты и попробуйте снова.'
+					'Пожалуйста, проверьте введенный адрес электронной почты и попробуйте снова.'
 			)
 		}
 

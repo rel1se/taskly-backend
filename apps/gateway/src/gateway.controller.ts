@@ -1,12 +1,14 @@
-import { Controller, Get } from '@nestjs/common';
-import { GatewayService } from './gateway.service';
+import { Controller, Get, Inject } from '@nestjs/common'
+import { ClientProxy } from '@nestjs/microservices'
 
 @Controller()
 export class GatewayController {
-  constructor(private readonly gatewayService: GatewayService) {}
+	constructor(
+		@Inject('AUTH_SERVICE') private readonly authClient: ClientProxy
+	) {}
 
-  @Get()
-  getHello(): string {
-    return this.gatewayService.getHello();
-  }
+	@Get('ping-auth')
+	async pingAuth() {
+		return this.authClient.send({ cmd: 'ping' }, {})
+	}
 }

@@ -8,6 +8,5 @@ export type TypeOptions = {
 	services: BaseOAuthService[]
 }
 
-export type TypeAsyncOptions = Pick<ModuleMetadata, 'imports'> & Pick<FactoryProvider<TypeOptions>, 'useFactory' | 'inject'>
-
-
+export type TypeAsyncOptions = Pick<ModuleMetadata, 'imports'> &
+	Pick<FactoryProvider<TypeOptions>, 'useFactory' | 'inject'>

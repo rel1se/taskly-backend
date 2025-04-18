@@ -1,12 +1,18 @@
-import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common'
-import { PrismaService } from '@/prisma/prisma.service'
-import {v4 as uuidv4} from 'uuid'
-import { TokenType } from '@prisma/__generated__'
-import { ConfirmationDto } from '@/auth/email-confirmation/dto/confirmation.dto'
+import {
+	BadRequestException,
+	forwardRef,
+	Inject,
+	Injectable,
+	NotFoundException
+} from '@nestjs/common'
+import { v4 as uuidv4 } from 'uuid'
+import { TokenType } from '@prisma/db-auth'
 import { Request } from 'express'
-import { MailService } from '@/libs/mail/mail.service'
-import { UserService } from '@/user/user.service'
-import { AuthService } from '@/auth/auth.service'
+import { PrismaService } from '../../prisma/prisma.service'
+import { MailService } from '../../libs/mail/mail.service'
+import { UserService } from '../../user/user.service'
+import { AuthService } from '../auth.service'
+import { ConfirmationDto } from './dto/confirmation.dto'
 
 @Injectable()
 export class EmailConfirmationService {
@@ -47,7 +53,7 @@ export class EmailConfirmationService {
 		if (!existingToken) {
 			throw new NotFoundException(
 				'Пользователь с указанным адресом электронной почты не найден. ' +
-				'Пожалуйста, убедитесь, что вы ввели правильный email.'
+					'Пожалуйста, убедитесь, что вы ввели правильный email.'
 			)
 		}
 
@@ -72,7 +78,10 @@ export class EmailConfirmationService {
 
 	public async sendVerificationToken(email: string) {
 		const verificationToken = await this.generateVerificationToken(email)
-		await this.mailService.sendConfirmationEmail(verificationToken.email, verificationToken.token)
+		await this.mailService.sendConfirmationEmail(
+			verificationToken.email,
+			verificationToken.token
+		)
 
 		return true
 	}
@@ -97,7 +106,7 @@ export class EmailConfirmationService {
 			})
 		}
 
-		const verificationToken = await  this.prismaService.token.create({
+		const verificationToken = await this.prismaService.token.create({
 			data: {
 				email,
 				token,

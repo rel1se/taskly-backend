@@ -6,20 +6,19 @@ import {
 	UnauthorizedException
 } from '@nestjs/common'
 import { RegisterDto } from './dto/register.dto'
-import { UserService } from '@/user/user.service'
 import { Request, Response } from 'express'
 import { LoginDto } from './dto/login.dto'
 import { verify } from 'argon2'
 import { ConfigService } from '@nestjs/config'
-import { AuthMethod, User } from '@prisma/__generated__'
+import { AuthMethod, User } from '@prisma/db-auth'
 import { ProviderService } from './provider/provider.service'
-import { PrismaService } from '@/prisma/prisma.service'
-import { EmailConfirmationService } from '@/auth/email-confirmation/email-confirmation.service'
-import { TwoFactorAuthService } from '@/auth/two-factor-auth/two-factor-auth.service'
+import { PrismaService } from '../prisma/prisma.service'
+import { UserService } from '../user/user.service'
+import { EmailConfirmationService } from './email-confirmation/email-confirmation.service'
+import { TwoFactorAuthService } from './two-factor-auth/two-factor-auth.service'
 
 @Injectable()
 export class AuthService {
-
 	public constructor(
 		private readonly prismaService: PrismaService,
 		private readonly userService: UserService,
@@ -56,7 +55,7 @@ export class AuthService {
 		}
 	}
 
-	public async login(req: Request, dto: LoginDto){
+	public async login(req: Request, dto: LoginDto) {
 		const user = await this.userService.findByEmail(dto.email)
 
 		if (!user || !user.password) {
@@ -73,8 +72,10 @@ export class AuthService {
 			)
 		}
 
-		if (!user.isVerified){
-			await this.emailConfirmationService.sendVerificationToken(user.email)
+		if (!user.isVerified) {
+			await this.emailConfirmationService.sendVerificationToken(
+				user.email
+			)
 			throw new UnauthorizedException(
 				'Ваш email не подтвержден. Пожалуйста, проверьте вашу почту и подтвердите адрес.'
 			)
@@ -85,12 +86,15 @@ export class AuthService {
 				await this.twoFactorAuthService.sendTwoFactorToken(user.email)
 
 				return {
-					message: 'Проверьте вашу почту. Требуется код двухфакторной аутентификации.'
+					message:
+						'Проверьте вашу почту. Требуется код двухфакторной аутентификации.'
 				}
 			}
 
-			await this.twoFactorAuthService.validateTwoFactorToken(user.email, dto.code)
-
+			await this.twoFactorAuthService.validateTwoFactorToken(
+				user.email,
+				dto.code
+			)
 		}
 
 		return this.saveSession(req, user)
@@ -102,6 +106,12 @@ export class AuthService {
 		code: string
 	) {
 		const providerInstance = this.providerService.findByService(provider)
+
+		if (!providerInstance) {
+			throw new NotFoundException(
+				`Провайдер с именем "${provider}" не найден.`
+			)
+		}
 
 		const profile = await providerInstance.findUserByCode(code)
 
@@ -137,7 +147,7 @@ export class AuthService {
 					provider: profile.provider,
 					accessToken: profile.access_token,
 					refreshToken: profile.refresh_token,
-					expiresAt: profile.expires_at
+					expiresAt: profile.expires_at ?? Date.now() + 3600 * 1000
 				}
 			})
 		}
@@ -145,9 +155,9 @@ export class AuthService {
 		return this.saveSession(req, user)
 	}
 
-
 	public async logout(req: Request, res: Response): Promise<void> {
 		return new Promise((resolve, reject) => {
+			// @ts-ignore
 			req.session.destroy(err => {
 				if (err) {
 					return reject(
@@ -164,8 +174,9 @@ export class AuthService {
 
 	public async saveSession(req: Request, user: User) {
 		return new Promise((resolve, reject) => {
+			// @ts-ignore
 			req.session.userId = user.id
-
+			// @ts-ignore
 			req.session.save(err => {
 				if (err) {
 					return reject(

@@ -13,7 +13,7 @@ export class BaseOAuthService {
 
 	public constructor(private readonly options: TypeBaseProviderOptions) {}
 
-	protected async extractUserInfo(data: any): Promise<TypeUserInfo> {
+	protected extractUserInfo(data: any): TypeUserInfo {
 		return {
 			...data,
 			provider: this.options.name

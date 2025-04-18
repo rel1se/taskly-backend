@@ -1,12 +1,11 @@
-// invite-member.dto.ts
-import { IsEmail, IsEnum, IsNotEmpty } from 'class-validator';
-import { OrganizationRole } from '@prisma/__generated__'
+import { IsEmail, IsEnum, IsNotEmpty } from 'class-validator'
+import { OrganizationRole } from '@prisma/db-auth'
 
 export class InviteMemberDto {
 	@IsEmail()
-	email: string;
+	email: string
 
 	@IsNotEmpty()
 	@IsEnum(OrganizationRole)
-	role: OrganizationRole;
+	role: OrganizationRole
 }

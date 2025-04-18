@@ -5,8 +5,8 @@ import {
 	MinLength,
 	Validate
 } from 'class-validator'
+import { IsPasswordsMatchingConstraint } from '../../libs/common/decorators/is-passwords-matching-constraint.decorator'
 
-import { IsPasswordsMatchingConstraint } from '@/libs/common/decorators/is-passwords-matching-constraint.decorator'
 
 export class RegisterDto {
 	@IsString({ message: 'Имя должно быть строкой.' })

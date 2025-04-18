@@ -3,8 +3,7 @@ import {
 	ValidatorConstraint,
 	ValidatorConstraintInterface
 } from 'class-validator'
-import { RegisterDto } from '@/auth/dto/register.dto'
-
+import { RegisterDto } from '../../../auth/dto/register.dto'
 
 @ValidatorConstraint({ name: 'IsPasswordsMatching', async: false })
 export class IsPasswordsMatchingConstraint
@@ -15,7 +14,7 @@ export class IsPasswordsMatchingConstraint
 		return obj.password === passwordRepeat
 	}
 
-	public defaultMessage(validationArguments?: ValidationArguments) {
+	public defaultMessage() {
 		return 'Пароли не совпадают'
 	}
 }
