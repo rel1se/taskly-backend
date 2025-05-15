@@ -8,7 +8,7 @@ export class GatewayController {
 	) {}
 
 	@Get('ping-auth')
-	async pingAuth() {
+	pingAuth() {
 		return this.authClient.send({ cmd: 'ping' }, {})
 	}
 }
